@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using ProductCatalog.API.Domain;
+using ProductCatalog.Domain;
 
     public class CatalogServiceContext : DbContext
     {
@@ -12,9 +12,9 @@ using ProductCatalog.API.Domain;
         {
         }
 
-        public DbSet<ProductCatalog.API.Domain.CatalogItem> CatalogItems { get; set; }
+        public DbSet<CatalogItem> CatalogItems { get; set; }
 
-        public DbSet<ProductCatalog.API.Domain.CatalogBrand> CatalogBrands { get; set; }
+        public DbSet<CatalogBrand> CatalogBrands { get; set; }
 
-        public DbSet<ProductCatalog.API.Domain.CatalogType> CatalogTypes { get; set; }
+        public DbSet<CatalogType> CatalogTypes { get; set; }
     }

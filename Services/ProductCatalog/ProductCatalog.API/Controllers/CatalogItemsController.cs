@@ -5,7 +5,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ProductCatalog.API.Domain;
+using ProductCatalog.BusinessObjects;
+using ProductCatalog.Domain;
 
 namespace ProductCatalog.API.Controllers
 {
@@ -13,25 +14,23 @@ namespace ProductCatalog.API.Controllers
     [ApiController]
     public class CatalogItemsController : ControllerBase
     {
-        private readonly CatalogServiceContext _context;
-
-        public CatalogItemsController(CatalogServiceContext context)
+        ICatalogItemBO _catalogItemBO;
+        public CatalogItemsController(ICatalogItemBO catalogItemBO)
         {
-            _context = context;
+            _catalogItemBO = catalogItemBO;
         }
 
-        // GET: api/CatalogItems
-        [HttpGet]
         public async Task<ActionResult<IEnumerable<CatalogItem>>> GetCatalogItem()
         {
-            return await _context.CatalogItems.Include("CatalogType").Include("CatalogBrand").ToListAsync();
+            var item = await _catalogItemBO.GetCatalogItems();
+            return Ok(item);
         }
 
         // GET: api/CatalogItems/5
         [HttpGet("{id}")]
         public async Task<ActionResult<CatalogItem>> GetCatalogItem(int id)
         {
-            var catalogItem = await _context.CatalogItems.FindAsync(id);
+            var catalogItem = await _catalogItemBO.GetCatalogItemDetails(id);
 
             if (catalogItem == null)
             {
@@ -52,15 +51,15 @@ namespace ProductCatalog.API.Controllers
                 return BadRequest();
             }
 
-            _context.Entry(catalogItem).State = EntityState.Modified;
+           
 
             try
             {
-                await _context.SaveChangesAsync();
+                await _catalogItemBO.Update(catalogItem);
             }
-            catch (DbUpdateConcurrencyException)
+            catch (ApplicationException ex)
             {
-                if (!CatalogItemExists(id))
+                if (ex.Message == "Not Found")
                 {
                     return NotFound();
                 }
@@ -80,31 +79,17 @@ namespace ProductCatalog.API.Controllers
         [HttpPost]
         public async Task<ActionResult<CatalogItem>> PostCatalogItem(CatalogItem catalogItem)
         {
-            _context.CatalogItems.Add(catalogItem);
-            await _context.SaveChangesAsync();
+            await _catalogItemBO.Add(catalogItem);
 
             return CreatedAtAction("GetCatalogItem", new { id = catalogItem.Id }, catalogItem);
         }
 
         // DELETE: api/CatalogItems/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<CatalogItem>> DeleteCatalogItem(int id)
+        public async Task DeleteCatalogItem(int id)
         {
-            var catalogItem = await _context.CatalogItems.FindAsync(id);
-            if (catalogItem == null)
-            {
-                return NotFound();
-            }
-
-            _context.CatalogItems.Remove(catalogItem);
-            await _context.SaveChangesAsync();
-
-            return catalogItem;
-        }
-
-        private bool CatalogItemExists(int id)
-        {
-            return _context.CatalogItems.Any(e => e.Id == id);
+           await _catalogItemBO.Delete(id);
+           
         }
     }
 }

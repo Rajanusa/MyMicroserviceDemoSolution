@@ -12,6 +12,9 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
+using ProductCatalog.Repositories;
+using ProductCatalog.BusinessObjects;
+using ProductCatalog.EFRepositories;
 
 namespace ProductCatalog.API
 {
@@ -43,6 +46,8 @@ namespace ProductCatalog.API
                 });
             });
 
+            services.AddTransient<ICatalogItemBO, CatalogItemBO>();
+            services.AddTransient<ICatalogItemRepository, CatalogItemEFRepository>();
 
 
             services.AddDbContext<CatalogServiceContext>(options =>

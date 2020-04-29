@@ -1,4 +1,4 @@
-﻿using ProductCatalog.API.Domain;
+﻿using ProductCatalog.Domain;
 using System;
 using System.Collections.Generic;
 using System.Linq;
